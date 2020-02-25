@@ -1,0 +1,25 @@
+
+header {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    justify-content: space-around;
+    background: #f8f3f3;
+    border-bottom: 1px solid orange;
+}
+
+img.logo {
+    height: 100px;
+}
+
+h1 {
+    font-size: 2em;
+    font-family: 'Oswald';
+    font-weight: bold;
+    margin: 0 20px;
+    flex-grow: 1;
+}
+
+nav a {
+    margin-right: 10px;
+}
