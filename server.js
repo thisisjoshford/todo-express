@@ -39,7 +39,6 @@ app.get('/api/todos', async (req, res) => {
 });
 
 app.post('/api/todos', async (req, res) => {
-    const todo = req.body;
 
     try {
         //user input is in req.body.task
