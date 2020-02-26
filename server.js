@@ -16,6 +16,7 @@ app.use(morgan('dev')); // http logging
 app.use(cors()); // enable CORS request
 app.use(express.static('public')); // server files from /public folder
 app.use(express.json()); // enable reading incoming json data
+app.use(express.urlencoded({ extended:true })); //security parsing an encoded url
 // app.use(auth());
 // API Routes
 
@@ -42,7 +43,7 @@ app.post('/api/todos', async (req, res) => {
 
     try {
         //user input is in req.body.task
-
+        console.log(req.body);
         const result = await client.query(`
         INSERT INTO todos (task, complete)
         VALUES ($1, false)
@@ -67,8 +68,8 @@ app.put('/api/todos/:id', async (req, res) => {
     try {
         const result = await client.query(`
         UPDATE todos
-        SET COMPLETE=${req.body.complete}
-        WHERE ID = ${req.params.id}
+        SET COMPLETE=$1
+        WHERE ID = $2
         returning *;
             
         `, [req.body.complete, req.params.id]);
@@ -89,7 +90,7 @@ app.delete('/api/todos/:id', async (req, res) => {
     try {
         const result = await client.query(`
         DELETE FROM todos 
-        WHERE ID=${req.params.id}
+        WHERE todos.id=$1
         RETURNING *;
          
         `, [req.params.id]);
