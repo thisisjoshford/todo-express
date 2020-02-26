@@ -5,7 +5,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const client = require('./lib/client');
+const client = require('./lib/client.js');
 // Initiate database connection
 client.connect();
 
@@ -42,10 +42,14 @@ app.post('/api/todos', async (req, res) => {
     const todo = req.body;
 
     try {
+        //user input is in req.body.task
+
         const result = await client.query(`
-            
+        INSERT INTO todos (task, complete)
+        VALUES ('${req.body.task}', false)
+        returning *;
         `,
-            [/* pass in data */]);
+        [req.body.task]);
 
         res.json(result.rows[0]);
     }
@@ -63,8 +67,12 @@ app.put('/api/todos/:id', async (req, res) => {
 
     try {
         const result = await client.query(`
+        UPDATE todos
+        SET COMPLETE=${req.body.complete}
+        WHERE ID = ${req.params.id}
+        returning *;
             
-        `, [/* pass in data */]);
+        `, [req.body.complete, req.params.id]);
 
         res.json(result.rows[0]);
     }
@@ -78,12 +86,14 @@ app.put('/api/todos/:id', async (req, res) => {
 
 app.delete('/api/todos/:id', async (req, res) => {
     // get the id that was passed in the route:
-    const id = 0; // ???
 
     try {
         const result = await client.query(`
+        DELETE FROM todos 
+        WHERE ID=${req.params.id}
+        RETURNING *;
          
-        `, [/* pass data */]);
+        `, [req.params.id]);
 
         res.json(result.rows[0]);
     }
@@ -94,6 +104,11 @@ app.delete('/api/todos/:id', async (req, res) => {
         });
     }
 });
+
+app.get('*', (req, res) => {
+    res.send('404 error... ಠ_ಠ  you done goofed! (ง •̀_•́)ง ');
+});
+
 
 // Start the server
 app.listen(PORT, () => {
