@@ -16,7 +16,7 @@ app.use(morgan('dev')); // http logging
 app.use(cors()); // enable CORS request
 app.use(express.static('public')); // server files from /public folder
 app.use(express.json()); // enable reading incoming json data
-app.use(auth());
+// app.use(auth());
 // API Routes
 
 // *** TODOS ***
@@ -24,7 +24,7 @@ app.get('/api/todos', async (req, res) => {
 
     try {
         const result = await client.query(`
-            
+            SELECT * FROM todos
         `);
 
         res.json(result.rows);
