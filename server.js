@@ -43,13 +43,16 @@ const authRoutes = createAuthRoutes({
     }
 });
 
-//before ensure auth, but after other middleware 
+//before ensure auth, but after other middleware... 
+//the create-auth-route will be on top of this... 
+//so api/auth/signup... or api/auth/signin
+
 app.use('/api/auth', authRoutes);
 
 //for every route make sure there is a token
 const ensureAuth = require('./lib/auth/ensure-auth');
 
-app.use('/api', ensureAuth)
+app.use('/api', ensureAuth);
 
 //API ROUTES!!!
 // *** TODOS ***
@@ -77,11 +80,11 @@ app.post('/api/todos', async (req, res) => {
         //user input is in req.body.task
         console.log(req.body);
         const result = await client.query(`
-        INSERT INTO todos (task, complete)
-        VALUES ($1, false)
+        INSERT INTO todos (task, complete, user_id)
+        VALUES ($1, false, $2)
         returning *;
         `,
-        [req.body.task]);
+        [req.body.task, req.userId]);
 
         res.json(result.rows[0]);
     }
