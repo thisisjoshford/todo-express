@@ -17,9 +17,41 @@ app.use(cors()); // enable CORS request
 app.use(express.static('public')); // server files from /public folder
 app.use(express.json()); // enable reading incoming json data
 app.use(express.urlencoded({ extended:true })); //security parsing an encoded url
-// app.use(auth());
-// API Routes
 
+
+// Auth Routes
+const createAuthRoutes = require('./lib/auth/create-auth-routes');
+
+const authRoutes = createAuthRoutes({
+    selectUser(email) {
+        return client.query(`
+            SELECT id, email, hash 
+            FROM users
+            WHERE email = $1;
+        `,
+        [email]
+        ).then(result => result.rows[0]);
+    },
+    insertUser(user, hash) {
+        return client.query(`
+            INSERT into users (email, hash)
+            VALUES ($1, $2)
+            RETURNING id, email;
+        `,
+        [user.email, hash]
+        ).then(result => result.rows[0]);
+    }
+});
+
+//before ensure auth, but after other middleware 
+app.use('/api/auth', authRoutes);
+
+//for every route make sure there is a token
+const ensureAuth = require('./lib/auth/ensure-auth');
+
+app.use('/api', ensureAuth)
+
+//API ROUTES!!!
 // *** TODOS ***
 app.get('/api/todos', async (req, res) => {
 
@@ -105,6 +137,10 @@ app.delete('/api/todos/:id', async (req, res) => {
     }
 });
 
+
+
+// before ensure auth, but after other middleware:
+app.use('/api/auth', authRoutes);
 app.get('*', (req, res) => {
     res.send('404 error... ಠ_ಠ  you done goofed! (ง •̀_•́)ง ');
 });
