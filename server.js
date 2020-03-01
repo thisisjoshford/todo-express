@@ -59,12 +59,13 @@ app.use('/api', ensureAuth);
 app.get('/api/todos', async (req, res) => {
 
     try {
+        console.log(req.userId);
         const result = await client.query(`
             SELECT * FROM todos 
             WHERE user_id=$1;
         `[req.userId]);
 
-        res.json(result.rows);
+        res.json(result.rows[0]);
     }
     catch (err) {
         console.log(err);
@@ -79,7 +80,6 @@ app.post('/api/todos', async (req, res) => {
 
     try {
         //user input is in req.body.task
-        console.log(req.body);
         const result = await client.query(`
         INSERT INTO todos (task, complete, user_id)
         VALUES ($1, false, $2)
